@@ -1,9 +1,9 @@
 import { SaveData } from "../data/database";
-import { SaveTaskData, StudyPlansTask, Task } from "../tasks/task";
+import { ClientTask, RegisterTask, StudyPlansTask, TaskData } from "../tasks/task";
 import { Request, AbstractHandler } from "./abstractHandler";
 
 export class RegisterHandler extends AbstractHandler {
-  public handle(request: Request): Task | null {
+  public handle(request: Request): ClientTask<TaskData> | null {
     if (request.path === "register" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
@@ -11,12 +11,12 @@ export class RegisterHandler extends AbstractHandler {
       }
 
       // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
-      if (!request.taskData) {
+      if (!request.clientTask?.taskData) {
         throw new Error("No task data provided");
       }
 
       // handle form save
-      return super.saveData(this.saveRegisterData, { task: request.taskData });
+      return super.saveData(this.saveRegisterData, request.clientTask);
     }
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
     return super.handle(request); // Pass to the next handler
@@ -28,21 +28,30 @@ export class RegisterHandler extends AbstractHandler {
     return isValidRequest;
   }
 
-  private saveRegisterData(data: SaveTaskData<Task>): void {
+  private saveRegisterData(data: ClientTask<TaskData>): void {
     SaveData(data);
   }
 
-  private getRegisterDetailsDao() {
+  private getRegisterDetailsDao(): RegisterTask | null {
     return null;
+    // return {
+    //   email: "bobbob@bob.com",
+    //   familiarName: "Bob",
+    //   consent: true,
+    // };
   }
 
   // Add additional methods here
   private getRegisterDetails() {
     // server stateModel
     const registerDetails = this.getRegisterDetailsDao();
-    if (registerDetails) {
-      return registerDetails;
-    }
-    return null;
+    const registerTask: ClientTask<RegisterTask> = {
+      id: "register",
+      title: "Register",
+      ...(registerDetails && { taskData: registerDetails as RegisterTask }),
+      nextTask: { route: "study-plans" },
+      completed: false,
+    };
+    return registerTask;
   }
 }

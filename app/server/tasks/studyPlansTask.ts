@@ -1,18 +1,8 @@
 import { StudyPlansTask } from "./task";
 
 export const studyPlansTask: StudyPlansTask = {
-  id: "studyPlans",
-  title: "Study Plans",
-
+  courses: [],
   intendedStartDate: "",
   level: "FOUNDATION",
-  courses: [],
   selectedCourse: { id: "", label: "", description: "", level: "FOUNDATION" },
-  nextTask: {
-    route: "contact-details",
-  },
-  previousTask: {
-    route: "home",
-  },
-  completed: false,
 };

@@ -1,7 +1,7 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { RegisterHandler } from "../server/taskHandlers/registerHandler";
-import { RegisterTask } from "~/server/tasks/task";
+import { ClientTask, RegisterTask } from "~/server/tasks/task";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -12,7 +12,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const registerTask = (await registerHandler.handle({
     method: "GET",
     path: "register",
-  })) as RegisterTask;
+  })) as ClientTask<RegisterTask>;
   if (!registerTask) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -30,12 +30,13 @@ export default function Index() {
       </p>
       <p>
         <span>Your Email: </span>
-        <span> ${registerTask.email}</span>
+        {/* <span> {registerTask.id}</span> */}
+        <span> {registerTask.taskData?.email}</span>
       </p>
 
       <p>
         <span>What do we call you : </span>
-        <span> ${registerTask.familiarName}</span>
+        <span> {registerTask.taskData?.familiarName}</span>
       </p>
     </>
   );
