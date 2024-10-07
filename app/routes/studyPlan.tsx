@@ -6,10 +6,10 @@ import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   // this would be an API call in a real app
-  const registerHandler = new StudyPlanHandler();
+  const studyPlanHandler = new StudyPlanHandler();
 
   //   invariant(params.contactId, "Missing contactId param");
-  const studyPlanTask = (await registerHandler.handle({
+  const studyPlanTask = (await studyPlanHandler.handle({
     method: "GET",
     path: "study-plan",
   })) as ClientTask<StudyPlansTask>;
@@ -25,7 +25,6 @@ export default function Index() {
 
   return (
     <>
-      {/* <p id="study-plan-page"> */}
       STUDY PLAN
       <br />
       <br />
@@ -56,7 +55,6 @@ export default function Index() {
           </button>
         </p>
       </Form>
-      {/* </p> */}
     </>
   );
 }
