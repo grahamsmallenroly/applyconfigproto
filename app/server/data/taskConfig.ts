@@ -16,7 +16,7 @@ export type TaskConfig = {
 export const taskConfig: TaskConfig = {
   paths: [
     {
-      id: "studyPlans",
+      id: "studyPlan",
       title: "Study Plans",
       nextTask: {
         route: "contact-details",

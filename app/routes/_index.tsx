@@ -91,15 +91,6 @@ export default function Index() {
           </p>
         </Form>
       </div>
-      {/* <p>
-        <span>Your Email: </span>
-        <span> {registerTask.taskData?.email}</span>
-      </p> */}
-
-      {/* <p>
-        <span>What do we call you : </span>
-        <span> {registerTask.taskData?.familiarName}</span>
-      </p> */}
     </>
   );
 }
