@@ -1,7 +1,7 @@
 import { ClientTask, StudyPlansTask, TaskData } from "../tasks/task";
 import { Request, AbstractHandler } from "./abstractHandler";
 
-class StudyPlanHandler extends AbstractHandler {
+export class StudyPlanHandler extends AbstractHandler {
   public handle(request: Request): ClientTask<TaskData> | null {
     if (request.path === "study-plan" && this.validPathRequest()) {
       // handle page load

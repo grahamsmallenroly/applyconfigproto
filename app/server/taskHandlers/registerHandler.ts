@@ -49,7 +49,7 @@ export class RegisterHandler extends AbstractHandler {
       id: "register",
       title: "Register",
       ...(registerDetails && { taskData: registerDetails as RegisterTask }),
-      nextTask: { route: "study-plans" },
+      nextTask: { route: "studyPlan" },
       completed: false,
     };
     return registerTask;
