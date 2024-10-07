@@ -6,7 +6,7 @@ export class StudyPlanHandler extends AbstractHandler {
     if (request.path === "study-plan" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
-        return this.getStudyPlan();
+        return this.getStudyPlan(request.path);
       }
 
       // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
@@ -30,10 +30,13 @@ export class StudyPlanHandler extends AbstractHandler {
   private saveStudyPlanData(data: ClientTask<TaskData>): void {}
 
   // Add additional methods here
-  private getStudyPlan() {
+  private getStudyPlan(pathId: string) {
+    // promoting code reuse - nice!
+    const path = this.getTaskPath(pathId);
+
     const studyPlanTask: ClientTask<StudyPlansTask> = {
-      id: "studyPlans",
-      title: "Study Plans",
+      id: path.id,
+      title: path.title,
       taskData: {
         courses: [],
         intendedStartDate: "",
@@ -41,11 +44,9 @@ export class StudyPlanHandler extends AbstractHandler {
         selectedCourse: { id: "", label: "", description: "", level: "FOUNDATION" },
       },
       nextTask: {
-        route: "contact-details",
+        route: path.nextTask?.route,
       },
-      previousTask: {
-        route: "home",
-      },
+      ...(path.prevTask && { previousTask: { route: path.prevTask.route } }),
       completed: false,
     };
 

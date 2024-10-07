@@ -4,7 +4,8 @@ export type Path = {
   nextTask: {
     route: string;
   };
-  prevTask: {
+  // Don't think we need this for back navigation - can be handled by remixJs
+  prevTask?: {
     route: string;
   };
 };
@@ -13,16 +14,23 @@ export type TaskConfig = {
   paths: Array<Path>;
 };
 
-export const taskConfig: TaskConfig = {
+const taskConfig: TaskConfig = {
   paths: [
     {
-      id: "studyPlan",
+      id: "register",
+      title: "Register Interest",
+      nextTask: {
+        route: "studyPlan",
+      },
+    },
+    {
+      id: "study-plan",
       title: "Study Plans",
       nextTask: {
-        route: "contact-details",
+        route: "contactDetails",
       },
       prevTask: {
-        route: "home",
+        route: "_index",
       },
     },
     {
@@ -32,8 +40,12 @@ export const taskConfig: TaskConfig = {
         route: "home",
       },
       prevTask: {
-        route: "studyPlans",
+        route: "studyPlan",
       },
     },
   ],
+};
+
+export const getTaskConfigDao = (): TaskConfig => {
+  return taskConfig;
 };

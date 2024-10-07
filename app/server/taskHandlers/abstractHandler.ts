@@ -1,4 +1,5 @@
 import { ClientTask, TaskData } from "../tasks/task";
+import { Path, TaskConfig, getTaskConfigDao } from "../data/taskConfig";
 
 // Handler interface defining the method and chain responsibility
 interface Handler {
@@ -40,5 +41,10 @@ export abstract class AbstractHandler implements Handler {
       method: "GET",
       path: saveTaskData.nextTask?.route || "",
     });
+  }
+
+  public getTaskPath(pathId: string): Path {
+    console.log("getTaskPath", pathId);
+    return getTaskConfigDao().paths.find((path) => path.id === pathId) as Path;
   }
 }

@@ -7,7 +7,7 @@ export class RegisterHandler extends AbstractHandler {
     if (request.path === "register" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
-        return this.getRegisterDetails();
+        return this.getRegisterDetails(request.path);
       }
 
       // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
@@ -42,14 +42,19 @@ export class RegisterHandler extends AbstractHandler {
   }
 
   // Add additional methods here
-  private getRegisterDetails() {
+  private getRegisterDetails(pathId: string) {
+    const path = this.getTaskPath(pathId);
+
     // server stateModel
     const registerDetails = this.getRegisterDetailsDao();
     const registerTask: ClientTask<RegisterTask> = {
-      id: "register",
-      title: "Register",
+      id: path.id,
+      title: path.title,
       ...(registerDetails && { taskData: registerDetails as RegisterTask }),
-      nextTask: { route: "studyPlan" },
+      nextTask: {
+        route: path.nextTask?.route,
+      },
+      ...(path.prevTask && { previousTask: { route: path.prevTask.route } }),
       completed: false,
     };
     return registerTask;
