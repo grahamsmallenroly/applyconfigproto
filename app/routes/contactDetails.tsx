@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { TaskHandlerApi } from "../server/taskHandlers/taskHandlerAPI";
-import { ClientTask, StudyPlansTask } from "~/server/tasks/task";
+import { ClientTask, ContactDetailsTask } from "~/server/tasks/task";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -9,14 +9,14 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const taskHandler = new TaskHandlerApi();
 
   //   invariant(params.contactId, "Missing contactId param");
-  const studyPlanTask = (await taskHandler.handle({
+  const contactDetailsTask = (await taskHandler.handle({
     method: "GET",
-    route: "studyPlan",
-  })) as ClientTask<StudyPlansTask>;
-  if (!studyPlanTask) {
+    route: "contactDetails",
+  })) as ClientTask<ContactDetailsTask>;
+  if (!contactDetailsTask) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ studyPlanTask: studyPlanTask });
+  return json({ contactDetailsTask: contactDetailsTask });
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
@@ -30,12 +30,12 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   const response = await taskHandler.handle({
     method: "POST",
-    route: "studyPlan",
+    route: "contactDetails",
     clientTask: {
-      route: "studyPlan",
-      title: "study-plan title",
-      nextRoute: "applyInterview",
-      prevRoute: "_index",
+      route: "contactDetails",
+      title: "contactDetails title",
+      nextRoute: "summary",
+      prevRoute: "applyInterview",
       completed: true,
       taskData: {
         courses: updates.courses
@@ -60,41 +60,30 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   if (!nextRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });
   }
-  console.log("studeyPaln nextRoute", nextRoute.valueOf());
+  console.log("contactDetails nextRoute", nextRoute.valueOf());
   return redirect(`/${nextRoute.valueOf() as string}`);
 };
 
 export default function Index() {
-  const { studyPlanTask } = useLoaderData<typeof loader>();
+  const { contactDetailsTask } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   return (
     <>
-      STUDY PLAN
+      CONTACT DETAILS
       <br />
       <br />
-      <Form key={studyPlanTask.route} id="contact-form" method="post">
-        {/* <p>
-              <span>Courses</span>
-
-              <input
-                aria-label="Courses"
-                defaultValue={studyPlanTask.taskData?.courses}
-                name="first"
-                placeholder="First"
-                type="select"
-              />
-            </p> */}
+      <Form key={contactDetailsTask.route} id="contact-form" method="post">
         <span>Intended Start Date</span>
         <input
-          aria-label="Intended Start Date"
-          defaultValue={studyPlanTask.taskData?.intendedStartDate}
+          aria-label="Your Address"
+          defaultValue={contactDetailsTask.taskData?.addressLine1}
           name="intendedStartDate"
           placeholder=""
           type="text"
         />
-        <input type="hidden" name="route" value={studyPlanTask.route} />
-        <input type="hidden" name="nextRoute" value={studyPlanTask?.nextRoute} />
+        <input type="hidden" name="route" value={contactDetailsTask.route} />
+        <input type="hidden" name="nextRoute" value={contactDetailsTask?.nextRoute} />
 
         <p>
           <button type="submit">Continue</button>

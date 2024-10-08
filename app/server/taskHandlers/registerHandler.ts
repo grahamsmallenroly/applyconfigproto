@@ -1,13 +1,13 @@
-import { SaveData } from "../data/database";
-import { ClientTask, RegisterTask, StudyPlansTask, TaskData } from "../tasks/task";
+import { ClientTask, RegisterTask, Task } from "../tasks/task";
 import { Request, AbstractHandler } from "./abstractHandler";
 
 export class RegisterHandler extends AbstractHandler {
-  public handle(request: Request): ClientTask<TaskData> | null {
-    if (request.path === "register" && this.validPathRequest()) {
+  public handle(request: Request): ClientTask<Task> | null {
+    console.log("RegisterHandler handle", JSON.stringify(request));
+    if (request.route === "_index" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
-        return this.getRegisterDetails(request.path);
+        return this.getRegisterDetails(request.route);
       }
 
       // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
@@ -16,20 +16,25 @@ export class RegisterHandler extends AbstractHandler {
       }
 
       // handle form save
+      console.log("RegisterHandler saveRegisterData");
       return super.saveData(this.saveRegisterData, request.clientTask);
     }
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
-    return super.handle(request); // Pass to the next handler
+    console.log("RegisterHandler route:", request.route);
+    const nextRoute = this.getTaskRoute(request.route).nextRoute;
+    console.log("RegisterHandler next route:", nextRoute);
+
+    return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
   }
 
-  private validPathRequest() {
+  public validPathRequest() {
     // specific validation logic
     const isValidRequest = true;
     return isValidRequest;
   }
 
-  private saveRegisterData(data: ClientTask<TaskData>): void {
-    SaveData(data);
+  private saveRegisterData(data: ClientTask<Task>): ClientTask<Task> {
+    return data;
   }
 
   private getRegisterDetailsDao(): RegisterTask | null {
@@ -42,19 +47,17 @@ export class RegisterHandler extends AbstractHandler {
   }
 
   // Add additional methods here
-  private getRegisterDetails(pathId: string) {
-    const path = this.getTaskPath(pathId);
+  private getRegisterDetails(routeValue: string) {
+    const routeData = this.getTaskRoute(routeValue);
 
     // server stateModel
     const registerDetails = this.getRegisterDetailsDao();
     const registerTask: ClientTask<RegisterTask> = {
-      id: path.id,
-      title: path.title,
+      route: routeData.value,
+      title: routeData.title,
+      nextRoute: routeData.nextRoute,
+      prevRoute: routeData.prevRoute,
       ...(registerDetails && { taskData: registerDetails as RegisterTask }),
-      nextTask: {
-        route: path.nextTask?.route,
-      },
-      ...(path.prevTask && { previousTask: { route: path.prevTask.route } }),
       completed: false,
     };
     return registerTask;

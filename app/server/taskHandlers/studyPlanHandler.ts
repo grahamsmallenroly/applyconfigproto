@@ -1,12 +1,12 @@
-import { ClientTask, StudyPlansTask, TaskData } from "../tasks/task";
+import { ClientTask, StudyPlansTask, Task } from "../tasks/task";
 import { Request, AbstractHandler } from "./abstractHandler";
 
 export class StudyPlanHandler extends AbstractHandler {
-  public handle(request: Request): ClientTask<TaskData> | null {
-    if (request.path === "study-plan" && this.validPathRequest()) {
+  public handle(request: Request): ClientTask<Task> | null {
+    if (request.route === "studyPlan" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
-        return this.getStudyPlan(request.path);
+        return this.getStudyPlan(request.route);
       }
 
       // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
@@ -17,39 +17,43 @@ export class StudyPlanHandler extends AbstractHandler {
       // handle form save
       return super.saveData(this.saveStudyPlanData, request.clientTask);
     }
+    console.log("StudyPlanHandler super.handle");
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
-    return super.handle(request); // Pass to the next handler
+    const nextRoute = this.getTaskRoute(request.route).nextRoute;
+    return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
   }
 
-  private validPathRequest() {
+  // only public because it's called from the abstract handler
+  public validPathRequest() {
     // specific validation logic
     const isValidRequest = true;
     return isValidRequest;
   }
 
-  private saveStudyPlanData(data: ClientTask<TaskData>): void {}
+  private saveStudyPlanData(data: ClientTask<Task>): ClientTask<Task> {
+    return data;
+  }
 
   // Add additional methods here
-  private getStudyPlan(pathId: string) {
+  private getStudyPlan(routeValue: string) {
     // promoting code reuse - nice!
-    const path = this.getTaskPath(pathId);
+    const routeData = this.getTaskRoute(routeValue);
 
     const studyPlanTask: ClientTask<StudyPlansTask> = {
-      id: path.id,
-      title: path.title,
+      route: routeData.value,
+      title: routeData.title,
       taskData: {
         courses: [],
         intendedStartDate: "",
         level: "FOUNDATION",
         selectedCourse: { id: "", label: "", description: "", level: "FOUNDATION" },
       },
-      nextTask: {
-        route: path.nextTask?.route,
-      },
-      ...(path.prevTask && { previousTask: { route: path.prevTask.route } }),
+      nextRoute: routeData.nextRoute,
+      ...(routeData.prevRoute && { prevRoute: routeData.prevRoute }),
       completed: false,
     };
 
+    console.log("studyPlanTask.nextRoute:", studyPlanTask.nextRoute);
     return studyPlanTask;
   }
 }

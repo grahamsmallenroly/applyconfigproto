@@ -1,17 +1,17 @@
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { RegisterHandler } from "../server/taskHandlers/registerHandler";
+import { TaskHandlerApi } from "../server/taskHandlers/taskHandlerAPI";
 import { ClientTask, RegisterTask } from "~/server/tasks/task";
 import { Form, useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   // this would be an API call in a real app
-  const registerHandler = new RegisterHandler();
+  const taskHandler = new TaskHandlerApi();
 
   //   invariant(params.contactId, "Missing contactId param");
-  const registerTask = (await registerHandler.handle({
+  const registerTask = (await taskHandler.handle({
     method: "GET",
-    path: "register",
+    route: "_index",
   })) as ClientTask<RegisterTask>;
   if (!registerTask) {
     throw new Response("Not Found", { status: 404 });
@@ -25,25 +25,28 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   const updates = Object.fromEntries(formData);
   console.log("updates", updates);
 
-  const registerHandler = new RegisterHandler();
+  const taskHandler = new TaskHandlerApi();
 
-  await registerHandler.handle({
+  const response = await taskHandler.handle({
     method: "POST",
-    path: "register",
+    route: "_index",
     clientTask: {
-      id: "fixThisId",
+      route: "_index",
       title: "fixThisTitle",
-      nextTask: { route: "fixThisRoute" },
-      completed: true,
+      nextRoute: "studyPlan",
       taskData: {
         email: updates.email ?? "email not set",
         familiarName: updates.familiarName ?? "familiarName",
         consent: true,
       },
+      completed: true,
     },
   });
+  console.log(" index response", JSON.stringify(response));
   //await updateContact(params.contactId, updates);
-  const nextRoute = formData.get("nextRoute");
+  // const nextRoute = formData.get("nextRoute");
+  //THIS NEEDS TO CHANGE _ THE API SHOULD RETURN REGISTER TASK NOT STUDYPLAN TASK
+  const nextRoute = response?.nextRoute;
   if (!nextRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });
   }
@@ -62,7 +65,7 @@ export default function Index() {
       </p>
 
       <div>
-        <Form key={registerTask.id} id="contact-form" method="post">
+        <Form key={registerTask.route} id="contact-form" method="post">
           <p>
             <span>Your Email</span>
             <input
@@ -83,8 +86,8 @@ export default function Index() {
               type="text"
             />
           </p>
-          <input type="hidden" name="id" value={registerTask.id} />
-          <input type="hidden" name="nextRoute" value={registerTask.nextTask.route} />
+          <input type="hidden" name="route" value={registerTask.route} />
+          <input type="hidden" name="nextRoute" value={registerTask?.nextRoute} />
           <p>
             <button type="submit">Continue</button>
             {/* <button type="button">Cancel</button> */}

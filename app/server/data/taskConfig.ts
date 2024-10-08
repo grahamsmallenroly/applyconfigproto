@@ -1,47 +1,48 @@
-export type Path = {
-  id: string;
+import { RouteValue } from "../types";
+
+export type ClientRoute = {
+  value: RouteValue;
   title: string;
-  nextTask: {
-    route: string;
-  };
+  nextRoute: RouteValue;
   // Don't think we need this for back navigation - can be handled by remixJs
-  prevTask?: {
-    route: string;
-  };
+  prevRoute?: RouteValue;
 };
 
 export type TaskConfig = {
-  paths: Array<Path>;
+  routes: Array<ClientRoute>;
 };
 
 const taskConfig: TaskConfig = {
-  paths: [
+  routes: [
     {
-      id: "register",
+      value: "_index",
       title: "Register Interest",
-      nextTask: {
-        route: "studyPlan",
-      },
+      nextRoute: "studyPlan",
     },
     {
-      id: "study-plan",
+      value: "studyPlan",
       title: "Study Plans",
-      nextTask: {
-        route: "contactDetails",
-      },
-      prevTask: {
-        route: "_index",
-      },
+      nextRoute: "applyInterview",
+      prevRoute: "_index",
+    },
+    // in the prototype, we are skipping the apply interview details
+    {
+      value: "applyInterview",
+      title: "Apply Interview Details",
+      nextRoute: "contactDetails",
+      prevRoute: "studyPlan",
     },
     {
-      id: "contact-details",
+      value: "contactDetails",
       title: "Contact Details",
-      nextTask: {
-        route: "home",
-      },
-      prevTask: {
-        route: "studyPlan",
-      },
+      nextRoute: "summary",
+      prevRoute: "applyInterview",
+    },
+    {
+      value: "summary",
+      title: "Task Summary",
+      nextRoute: "unknown",
+      prevRoute: "contactDetails",
     },
   ],
 };

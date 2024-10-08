@@ -1,12 +1,6 @@
-type TaskDetails = {
-  [key: string]: string | boolean | number | object;
-};
+import { RouteValue } from "../types";
 
-type TaskIdentifier = {
-  route: string;
-};
-
-export type TaskData = {
+export type Task = {
   //   id: string;
   //   title: string;
   //   nextTask: TaskIdentifier;
@@ -19,26 +13,43 @@ type CourseLevel = "FOUNDATION" | "UNDERGRADUATE" | "POSTGRADUATE";
 type Course = { id: string; label: string; description: string; level: CourseLevel };
 
 export interface ClientTask<Task> {
-  id: string;
+  route: RouteValue;
   title: string;
-  nextTask: TaskIdentifier;
-  previousTask?: TaskIdentifier;
+  nextRoute: RouteValue;
+  prevRoute?: RouteValue;
   completed: boolean;
   taskData?: Task;
 }
 
 // The problem with these type is the optional properties.
 // I am setting them because
-export type StudyPlansTask = TaskData & {
+export type StudyPlansTask = Task & {
   courses: Array<Course>;
   intendedStartDate: string;
   level: CourseLevel;
   selectedCourse: Course;
 };
 
-export type RegisterTask = TaskData & {
+export type RegisterTask = Task & {
   email: string;
   // what do we call you?
   familiarName: string;
   consent: boolean;
+};
+
+export type InterviewTask = Task & {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
+export type ContactDetailsTask = Task & {
+  id: string;
+  addressLine1: string;
+  completed: boolean;
+};
+
+export type SummaryTask = Task & {
+  completedTasks: Array<Task>;
+  nextTask: Task;
 };

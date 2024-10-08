@@ -1,17 +1,19 @@
-import { ClientTask, TaskData } from "../tasks/task";
-import { Path, TaskConfig, getTaskConfigDao } from "../data/taskConfig";
+import { ClientTask, Task } from "../tasks/task";
+import { ClientRoute, getTaskConfigDao } from "../data/taskConfig";
+import { RouteValue } from "../types";
+import { json } from "@remix-run/node";
 
 // Handler interface defining the method and chain responsibility
 interface Handler {
   setNext(handler: Handler): Handler;
-  handle(request: Request): ClientTask<TaskData> | null;
+  handle(request: Request): ClientTask<Task> | null;
 }
 
 // This will do for now but this should be defined elsewehere
 export interface Request {
   method: "GET" | "POST";
-  path: string;
-  clientTask?: ClientTask<TaskData>;
+  route: RouteValue;
+  clientTask?: ClientTask<Task>;
 }
 
 // Abstract class to help link handlers and provide default behavior for setting the next handler
@@ -25,26 +27,27 @@ export abstract class AbstractHandler implements Handler {
   }
 
   // Passes the request to the next handler if available
-  public handle(request: Request): ClientTask<TaskData> | null {
+  public handle(request: Request): ClientTask<Task> | null {
+    console.log(`AbstractHandler handle: ${JSON.stringify(request)}`);
     if (this.nextHandler) {
-      return this.nextHandler.handle(request);
+      return this.nextHandler.handle({ route: request.route, method: "GET" });
     }
     return null;
   }
 
   public saveData(
-    saveDataFunction: (saveDataTask: ClientTask<TaskData>) => void,
-    saveTaskData: ClientTask<TaskData>
-  ): ClientTask<TaskData> | null {
-    saveDataFunction(saveTaskData);
-    return this.handle({
-      method: "GET",
-      path: saveTaskData.nextTask?.route || "",
-    });
+    saveDataFunction: (saveDataTask: ClientTask<Task>) => ClientTask<Task>,
+    saveTaskData: ClientTask<Task>
+  ): ClientTask<Task> | null {
+    const savedData = saveDataFunction(saveTaskData);
+
+    // BEFORE YOU RETURN THIS YOU WILL NEED TO CHECK THE NEXT ROUTE IS STILL VALID
+    // AND UPDATE NEXT ROUTE IF NOT
+    // MAYBE USE CHAIN OF RESPONSIBILITY PATTERN TO DO THIS
+    return savedData;
   }
 
-  public getTaskPath(pathId: string): Path {
-    console.log("getTaskPath", pathId);
-    return getTaskConfigDao().paths.find((path) => path.id === pathId) as Path;
+  public getTaskRoute(routeValue: string): ClientRoute {
+    return getTaskConfigDao().routes.find((route) => route.value === routeValue) as ClientRoute;
   }
 }
