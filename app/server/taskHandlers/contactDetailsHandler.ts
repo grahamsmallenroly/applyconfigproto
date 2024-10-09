@@ -1,33 +1,26 @@
 import { ClientTask, ContactDetailsTask, InterviewTask, Task } from "../tasks/task";
+import { AbstractTaskValidator } from "../taskValidators/abstractTaskValidator";
+import { RouteValue } from "../types";
 import { Request, AbstractHandler } from "./abstractHandler";
 
 export class ContactDetailsHandler extends AbstractHandler {
-  public handle(request: Request): ClientTask<Task> | null {
-    if (request.route === "contactDetails" && this.validPathRequest()) {
-      // handle page load
-      if (request.method === "GET") {
-        return this.getContactdetails(request.route);
-      }
-
-      // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
-      if (!request.clientTask?.taskData) {
-        throw new Error("No task data provided");
-      }
-
-      // handle form save
-      return super.saveData(this.saveApplyInterviewData, request.clientTask);
-    }
-    // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
-    // const nextRoute = this.getTaskRoute(request.route).nextRoute;
-    // return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
-    return null;
+  constructor(taskValidator: AbstractTaskValidator) {
+    super(taskValidator);
   }
 
-  // only public because it's called from the abstract handler
-  // for the prototype, we'll just return false
-  public validPathRequest() {
-    const isValidRequest = true;
-    return isValidRequest;
+  public handle(request: Request): ClientTask<Task> | null {
+    // handle page load
+    if (request.method === "GET") {
+      return this.getContactdetails(request.route);
+    }
+
+    // We shouldn't be able to get here without a taskData. Code smell - interface is wrong.
+    if (!request.clientTask?.taskData) {
+      throw new Error("No task data provided");
+    }
+
+    // handle form save
+    return super.saveData(this.saveApplyInterviewData, request.clientTask);
   }
 
   private saveApplyInterviewData(data: ClientTask<Task>): ClientTask<Task> {

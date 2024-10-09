@@ -1,30 +1,23 @@
 import { ClientTask, ContactDetailsTask, SummaryTask, Task } from "../tasks/task";
+import { AbstractTaskValidator } from "../taskValidators/abstractTaskValidator";
 import { Request, AbstractHandler } from "./abstractHandler";
 
 export class SummaryHandler extends AbstractHandler {
+  constructor(taskValidator: AbstractTaskValidator) {
+    super(taskValidator);
+  }
+
   public handle(request: Request): ClientTask<Task> | null {
-    if (request.route === "summary" && this.validPathRequest()) {
-      // handle page load
-      if (request.method === "GET") {
-        return this.getTaskSummary(request.route);
-      }
-      // Won't be saving summary data
+    // handle page load
+    if (request.method === "GET") {
+      return this.getTaskSummary(request.route);
     }
-    return null;
-  }
-
-  // only public because it's called from the abstract handler
-  // for the prototype, we'll just return false
-  public validPathRequest() {
-    const isValidRequest = true;
-    return isValidRequest;
-  }
-
-  private saveApplyInterviewData(data: ClientTask<Task>): ClientTask<Task> {
-    return data;
+    // Won't be saving summary data
+    throw new Error("Invalid request");
   }
 
   private getTaskSummaryDao(): SummaryTask | null {
+    // not implemented
     return null;
     // return {
     // id: "Enroly Apply Interview Id",

@@ -1,12 +1,16 @@
 import { ClientTask, Task } from "../tasks/task";
 import { ClientRoute, getTaskConfigDao } from "../data/taskConfig";
 import { RouteValue } from "../types";
-import { json } from "@remix-run/node";
+import { AbstractTaskValidator } from "../taskValidators/abstractTaskValidator";
 
 // Handler interface defining the method and chain responsibility
 interface Handler {
-  setNext(handler: Handler): Handler;
-  handle(request: Request): ClientTask<Task> | null;
+  saveData(
+    saveDataFunction: (saveDataTask: ClientTask<Task>) => ClientTask<Task>,
+    saveTaskData: ClientTask<Task>
+  ): ClientTask<Task> | null;
+
+  getTaskRoute(routeValue: string): ClientRoute;
 }
 
 // This will do for now but this should be defined elsewehere
@@ -16,22 +20,11 @@ export interface Request {
   clientTask?: ClientTask<Task>;
 }
 
-// Abstract class to help link handlers and provide default behavior for setting the next handler
 export abstract class AbstractHandler implements Handler {
-  private nextHandler: Handler | null = null;
+  private taskValidator: AbstractTaskValidator;
 
-  // Sets the next handler in the chain
-  public setNext(handler: Handler): Handler {
-    this.nextHandler = handler;
-    return handler;
-  }
-
-  // Passes the request to the next handler if available
-  public handle(request: Request): ClientTask<Task> | null {
-    if (this.nextHandler) {
-      return this.nextHandler.handle({ route: request.route, method: "GET" });
-    }
-    return null;
+  constructor(taskValidator: AbstractTaskValidator) {
+    this.taskValidator = taskValidator;
   }
 
   public saveData(
@@ -40,11 +33,24 @@ export abstract class AbstractHandler implements Handler {
   ): ClientTask<Task> | null {
     const savedData = saveDataFunction(saveTaskData);
 
-    // BEFORE YOU RETURN THIS YOU WILL NEED TO CHECK THE NEXT ROUTE IS STILL VALID
+    // BEFORE RETURNING THE SAVED RESOURCE, CHECK IF THE NEXT ROUTE IS VALID
     // AND UPDATE NEXT ROUTE IF NOT
-    // MAYBE USE CHAIN OF RESPONSIBILITY PATTERN TO DO THIS
+    // USE CHAIN OF RESPONSIBILITY PATTERN TO DO THIS
+    savedData.nextRoute = this.taskValidator.nextValidTask(saveTaskData.nextRoute);
     return savedData;
   }
+
+  // public nextValidTask(currentTaskRoute: string): ClientRoute {
+  //   const currentRoute = this.getTaskRoute(currentTaskRoute);
+  //   const nextRoute = getTaskConfigDao().routes.find((route) => route.value === currentRoute.nextRoute) as ClientRoute;
+
+  //   this.taskValidator.nextValidTask(nextRoute.nextRoute);
+  //   if (nextRoute) {
+  //     return nextRoute;
+  //   }
+
+  //   return currentRoute;
+  // }
 
   public getTaskRoute(routeValue: string): ClientRoute {
     return getTaskConfigDao().routes.find((route) => route.value === routeValue) as ClientRoute;

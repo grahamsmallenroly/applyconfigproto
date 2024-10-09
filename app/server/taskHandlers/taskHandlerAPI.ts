@@ -1,10 +1,13 @@
 import { ClientTask, Task } from "../tasks/task";
 import { Request } from "./abstractHandler";
 import { ContactDetailsHandler } from "./contactDetailsHandler";
-import { SummaryHandler } from "./contactDetailsHandler copy";
-import { InterviewHandler } from "./interview";
+import { SummaryHandler } from "./summaryHandler";
+import { InterviewHandler } from "./interviewHandler";
 import { RegisterHandler } from "./registerHandler";
 import { StudyPlanHandler } from "./studyPlanHandler";
+import { StudyPlanTaskValidator } from "../taskValidators/studyPlanTaskValidator";
+import { InterviewTaskValidator } from "../taskValidators/interviewTaskValidator";
+import { ContactDetailsTaskValidator } from "../taskValidators/contactDetailsTaskValidator";
 
 export class TaskHandlerApi {
   private registerHandler: RegisterHandler;
@@ -13,20 +16,24 @@ export class TaskHandlerApi {
   private contactDetailsHandler: ContactDetailsHandler;
   private summaryHandler: SummaryHandler;
 
+  private studyPlanTaskValidator: StudyPlanTaskValidator;
+  private interviewTaskValidator: InterviewTaskValidator;
+  private contactDetailsTaskValidator: ContactDetailsTaskValidator;
+
   constructor() {
-    this.registerHandler = new RegisterHandler();
-    this.studyPlanHandler = new StudyPlanHandler();
-    this.interviewHandler = new InterviewHandler();
-    this.contactDetailsHandler = new ContactDetailsHandler();
-    this.summaryHandler = new SummaryHandler();
+    this.studyPlanTaskValidator = new StudyPlanTaskValidator();
+    this.interviewTaskValidator = new InterviewTaskValidator();
+    this.contactDetailsTaskValidator = new ContactDetailsTaskValidator();
 
     //register the chain of responsibility
     // not using a working version of this yet
-    this.registerHandler
-      .setNext(this.studyPlanHandler)
-      .setNext(this.interviewHandler)
-      .setNext(this.contactDetailsHandler)
-      .setNext(this.summaryHandler);
+    this.studyPlanTaskValidator.setNext(this.interviewTaskValidator).setNext(this.contactDetailsTaskValidator);
+
+    this.registerHandler = new RegisterHandler(this.studyPlanTaskValidator);
+    this.studyPlanHandler = new StudyPlanHandler(this.studyPlanTaskValidator);
+    this.interviewHandler = new InterviewHandler(this.studyPlanTaskValidator);
+    this.contactDetailsHandler = new ContactDetailsHandler(this.studyPlanTaskValidator);
+    this.summaryHandler = new SummaryHandler(this.studyPlanTaskValidator);
   }
 
   public handle(request: Request): ClientTask<Task> | null {
