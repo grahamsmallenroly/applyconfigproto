@@ -18,7 +18,6 @@ export class InterviewHandler extends AbstractHandler {
       return super.saveData(this.saveApplyInterviewData, request.clientTask);
     }
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
-    console.log("InterviewHandler super.handle");
     const nextRoute = this.getTaskRoute(request.route).nextRoute;
     return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
   }
@@ -26,7 +25,6 @@ export class InterviewHandler extends AbstractHandler {
   // only public because it's called from the abstract handler
   // for the prototype, we'll just return false
   public validPathRequest() {
-    console.log("InterviewHandler validPathRequest");
     const isValidRequest = true;
     return isValidRequest;
   }
@@ -47,8 +45,6 @@ export class InterviewHandler extends AbstractHandler {
   private getInterview(route: string) {
     const routeData = this.getTaskRoute(route);
     const interviewData = this.getInterviewDetailsDao();
-    console.log("here");
-    console.log(JSON.stringify(routeData));
 
     return {
       route: routeData.value,

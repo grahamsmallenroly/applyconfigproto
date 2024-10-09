@@ -3,7 +3,6 @@ import { Request, AbstractHandler } from "./abstractHandler";
 
 export class RegisterHandler extends AbstractHandler {
   public handle(request: Request): ClientTask<Task> | null {
-    console.log("RegisterHandler handle", JSON.stringify(request));
     if (request.route === "_index" && this.validPathRequest()) {
       // handle page load
       if (request.method === "GET") {
@@ -16,13 +15,10 @@ export class RegisterHandler extends AbstractHandler {
       }
 
       // handle form save
-      console.log("RegisterHandler saveRegisterData");
       return super.saveData(this.saveRegisterData, request.clientTask);
     }
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
-    console.log("RegisterHandler route:", request.route);
     const nextRoute = this.getTaskRoute(request.route).nextRoute;
-    console.log("RegisterHandler next route:", nextRoute);
 
     return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
   }

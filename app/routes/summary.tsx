@@ -26,7 +26,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   if (!toDoActionRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });
   }
-  console.log("contactDetails nextRoute", toDoActionRoute.valueOf());
   return redirect(`/${toDoActionRoute.valueOf() as string}`);
 };
 

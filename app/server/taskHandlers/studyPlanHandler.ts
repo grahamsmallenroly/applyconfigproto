@@ -17,7 +17,6 @@ export class StudyPlanHandler extends AbstractHandler {
       // handle form save
       return super.saveData(this.saveStudyPlanData, request.clientTask);
     }
-    console.log("StudyPlanHandler super.handle");
     // this request can't be satisfied by StudyPlanHandler. Pass the request to next handler
     const nextRoute = this.getTaskRoute(request.route).nextRoute;
     return super.handle({ ...request, route: nextRoute }); // Pass to the next handler
@@ -53,7 +52,6 @@ export class StudyPlanHandler extends AbstractHandler {
       completed: false,
     };
 
-    console.log("studyPlanTask.nextRoute:", studyPlanTask.nextRoute);
     return studyPlanTask;
   }
 }

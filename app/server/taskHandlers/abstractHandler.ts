@@ -28,7 +28,6 @@ export abstract class AbstractHandler implements Handler {
 
   // Passes the request to the next handler if available
   public handle(request: Request): ClientTask<Task> | null {
-    console.log(`AbstractHandler handle: ${JSON.stringify(request)}`);
     if (this.nextHandler) {
       return this.nextHandler.handle({ route: request.route, method: "GET" });
     }

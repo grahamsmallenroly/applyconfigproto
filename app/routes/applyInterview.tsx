@@ -46,11 +46,9 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     },
   });
   const nextRoute = response?.nextRoute;
-  console.log("response", JSON.stringify(response));
   if (!nextRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });
   }
-  console.log("Aplly interview nextRoute", nextRoute.valueOf());
   return redirect(`/${nextRoute.valueOf() as string}`);
 };
 

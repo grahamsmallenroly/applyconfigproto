@@ -56,11 +56,9 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   });
   //THIS NEEDS TO CHANGE _ THE API SHOULD RETURN REGISTER TASK NOT STUDYPLAN TASK
   const nextRoute = response?.nextRoute;
-  console.log("response", JSON.stringify(response));
   if (!nextRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });
   }
-  console.log("studeyPaln nextRoute", nextRoute.valueOf());
   return redirect(`/${nextRoute.valueOf() as string}`);
 };
 

@@ -42,10 +42,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
       completed: true,
     },
   });
-  console.log(" index response", JSON.stringify(response));
-  //await updateContact(params.contactId, updates);
-  // const nextRoute = formData.get("nextRoute");
-  //THIS NEEDS TO CHANGE _ THE API SHOULD RETURN REGISTER TASK NOT STUDYPLAN TASK
   const nextRoute = response?.nextRoute;
   if (!nextRoute) {
     throw new Response("Next Route Not Supplied", { status: 404 });

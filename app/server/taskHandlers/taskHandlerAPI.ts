@@ -21,6 +21,7 @@ export class TaskHandlerApi {
     this.summaryHandler = new SummaryHandler();
 
     //register the chain of responsibility
+    // not using a working version of this yet
     this.registerHandler
       .setNext(this.studyPlanHandler)
       .setNext(this.interviewHandler)
@@ -29,9 +30,7 @@ export class TaskHandlerApi {
   }
 
   public handle(request: Request): ClientTask<Task> | null {
-    // this.registerHandler.setNext(this.studyPlanHandler).setNext(this.interviewHandler);
-    console.log("TaskHandlerApi handle", JSON.stringify(request));
-
+    // Regular route handling
     if (request.route === "_index") {
       return this.registerHandler.handle(request);
     }
