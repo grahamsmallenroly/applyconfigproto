@@ -17,3 +17,8 @@ Solution - Chain Of responsibility pattern implemented by AbstractTaskValidator
 
 Motivation: I want to be able to skip tasks at runtime if they are not applicable. Maybe, as in the requirements, there is a different page flow due to registration status or due to the data supplied by the student.
 
+##
+To run
+```
+pnpm dev
+```
