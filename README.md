@@ -22,3 +22,5 @@ To run
 ```
 pnpm dev
 ```
+
+> see LOOM https://www.loom.com/share/9a2c2e6496f34b67ba140941c1ec1596?sid=e6548c5a-43b3-4c11-86ee-2d3aae9e35e7
