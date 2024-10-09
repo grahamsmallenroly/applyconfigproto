@@ -27,6 +27,8 @@ export abstract class AbstractHandler implements Handler {
     this.taskValidator = taskValidator;
   }
 
+  abstract handle(request: Request): ClientTask<Task> | null;
+
   public saveData(
     saveDataFunction: (saveDataTask: ClientTask<Task>) => ClientTask<Task>,
     saveTaskData: ClientTask<Task>
